@@ -1,4 +1,4 @@
-name: paypal_intregation
+name: paypal_integration
 description: "A reusable Flutter package for seamless PayPal payment integration (sandbox & production) with secure, cross-platform support and customizable UI components."
 version: 0.0.1
 homepage:
@@ -10,6 +10,10 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_inappwebview: ^6.1.5
+  dio: ^5.9.0
+  mockito: ^5.5.1
+  build_runner: ^2.8.0
 
 dev_dependencies:
   flutter_test:
