@@ -1,0 +1,47 @@
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../features/home/home_screen.dart';
+import '../../../features/splash/splash_screen.dart';
+
+class ExampleRouter{
+  static const String splash = '/splash';
+  static const String home = '/home';
+
+  static String toName(String path) => path.replaceFirst('/', '');
+
+
+  static final GoRouter router = GoRouter(
+    initialLocation: splash,
+    routes: <RouteBase>[
+      GoRoute(
+        path: '/',
+        builder: (BuildContext context, GoRouterState state) {
+          return const SplashScreen();
+        },
+      ),
+      GoRoute(
+        path: home,
+        name: toName(home),
+        builder: (BuildContext context, GoRouterState state) {
+          return  HomePage();
+        },
+      ),
+      GoRoute(
+        path: splash,
+        builder: (BuildContext context, GoRouterState state) {
+          return  SplashScreen();
+        },
+      ),
+    ],
+  );
+}
+
+class DummyPage extends StatelessWidget {
+  const DummyPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}

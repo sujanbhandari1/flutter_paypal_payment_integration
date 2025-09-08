@@ -35,6 +35,7 @@ dependencies:
     path: ../
   riverpod: ^2.6.1
   flutter_riverpod: ^2.6.1
+  go_router: ^16.2.1
 
 dev_dependencies:
   flutter_test:
