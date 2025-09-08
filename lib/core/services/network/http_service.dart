@@ -1,67 +1,60 @@
+// lib/src/services/http_service.dart
 import 'package:dio/dio.dart';
+import '../models/form_data.dart';
 
-
-/// Http Service Interface
 abstract class HttpService {
-  /// Http base url
   String get baseUrl;
-
-  /// Http headers
   Map<String, String> get headers;
 
-  /// Http get request
   Future<Response> get(
-    String endpoint, {
-    Map<String, dynamic>? queryParameters,
-    bool isAuthenticated = true,
-    bool forceRefresh = false,
-    CancelToken? cancelToken,
-  });
+      String endpoint, {
+        Map<String, dynamic>? queryParameters,
+        bool isAuthenticated = true,
+        bool forceRefresh = false,
+        CancelToken? cancelToken,
+        Map<String, String>? headers, // NEW
+      });
 
-  /// Http post request
   Future<Response> post(
-    String endpoint,
-    BaseFormData formData, {
-    Map<String, dynamic>? queryParameters,
-    ContentType contentType = ContentType.formData,
-    bool isAuthenticated = false,
-    CancelToken? cancelToken,
-  });
+      String endpoint,
+       {
+        BaseFormData? formData,
+        Map<String, dynamic>? queryParameters,
+        ContentType contentType = ContentType.formData,
+        bool isAuthenticated = false,
+        CancelToken? cancelToken,
+        Map<String, String>? headers, // NEW
+      });
 
-  /// Http put request
   Future<Response> put(
-    String endpoint,
-    BaseFormData formData, {
-    Map<String, dynamic>? queryParameters,
-    bool isAuthenticated = true,
-    ContentType contentType = ContentType.json,
-    CancelToken? cancelToken,
-  });
+      String endpoint,
+      BaseFormData formData, {
+        Map<String, dynamic>? queryParameters,
+        bool isAuthenticated = true,
+        ContentType contentType = ContentType.json,
+        CancelToken? cancelToken,
+        Map<String, String>? headers, // NEW
+      });
 
-  /// Http patch request
   Future<Response> patch(
-    String endpoint,
-    BaseFormData formData, {
-    Map<String, dynamic>? queryParameters,
-    bool isAuthenticated = true,
-    ContentType contentType = ContentType.json,
-    CancelToken? cancelToken,
-  });
+      String endpoint,
+      BaseFormData formData, {
+        Map<String, dynamic>? queryParameters,
+        bool isAuthenticated = true,
+        ContentType contentType = ContentType.json,
+        CancelToken? cancelToken,
+        Map<String, String>? headers, // NEW
+      });
 
-  /// Http get request
   Future<String> download(
-    String endpoint, {
-    Map<String, dynamic>? queryParameters,
-    void Function(int count, int total)? onReceiveProgress,
-    CancelToken? cancelToken,
-  });
+      String endpoint, {
+        Map<String, dynamic>? queryParameters,
+        void Function(int count, int total)? onReceiveProgress,
+        CancelToken? cancelToken,
+        Map<String, String>? headers, // NEW
+      });
 
-  /// Http delete request
   Future<dynamic> delete();
 }
 
-/// Content Type
-enum ContentType {
-  json,
-  formData,
-}
+enum ContentType { json, formData,formUrlEncoded }

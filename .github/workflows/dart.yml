@@ -24,6 +24,7 @@ jobs:
         with:
           channel: stable
           flutter-version: 3.32.7
+      - run: flutter pub get
       - name: Analyze project
         run: flutter analyze --fatal-infos --fatal-warnings
       - run: flutter --version
