@@ -3,7 +3,6 @@
 import 'package:example/core/services/routers/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paypal_integration/paypal_intregation.dart';
 
 void main() {
   runApp(const ProviderScope(

@@ -3,6 +3,8 @@
 //
 
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:example/features/home/provider/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -283,7 +285,7 @@ class HomePage extends ConsumerWidget {
           if (checkoutState is CheckoutError)
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Text("❌ Error: ${(checkoutState as CheckoutError).message}"),
+              child: Text("❌ Error: ${(checkoutState).message}"),
             ),
           if (checkoutState is CheckoutSuccess)
             const Padding(

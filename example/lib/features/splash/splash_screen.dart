@@ -1,7 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../core/services/routers/app_router.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
