@@ -1,4 +1,5 @@
-import 'package:example/core/services/routers/app_router.dart';
+// ignore_for_file: unused_local_variable, use_build_context_synchronously
+
 import 'package:example/features/home/provider/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
