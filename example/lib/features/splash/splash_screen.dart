@@ -52,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     ///navigate the splash screen to home screen
     ///with some delay
     ///
-    Future.delayed(const Duration(seconds: 4),(){
+    Future.delayed(const Duration(seconds: 1),(){
       context.goNamed('home');
     });
   }

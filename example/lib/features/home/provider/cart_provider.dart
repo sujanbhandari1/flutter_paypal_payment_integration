@@ -77,45 +77,45 @@ class CheckoutNotifier extends StateNotifier<CheckoutState> {
         state = CheckoutError(tokenRes['message']);
         return;
       }
-      final accessToken = tokenRes['token'];
-
-      final transactions = [
-        {
-          "amount": {
-            "total": total.toStringAsFixed(2),
-            "currency": "USD",
-            "details": {
-              "subtotal": total.toStringAsFixed(2),
-              "shipping": '0',
-              "shipping_discount": 0
-            }
-          },
-          "description": "Payment for items",
-          "item_list": {
-            "items": items.map((e) => e.toPaypalItem()).toList(),
-          }
-        }
-      ];
-
-      final payment = await paypal.createPayment(
-        accessToken: accessToken,
-        intent: 'sale',
-        transactions: transactions,
-        returnUrl: "yourapp://success",
-        cancelUrl: "yourapp://cancel",
-      );
-
-      final approvalUrl = payment['approvalUrl'];
-      final executeUrl = payment['executeUrl'];
-
-      if (approvalUrl == null || executeUrl == null) {
-        state = CheckoutError("Missing approval or execute URL");
-        return;
-      }
-
+      // final accessToken = tokenRes['token'];
+      //
+      // final transactions = [
+      //   {
+      //     "amount": {
+      //       "total": total.toStringAsFixed(2),
+      //       "currency": "USD",
+      //       "details": {
+      //         "subtotal": total.toStringAsFixed(2),
+      //         "shipping": '0',
+      //         "shipping_discount": 0
+      //       }
+      //     },
+      //     "description": "Payment for items",
+      //     "item_list": {
+      //       "items": items.map((e) => e.toPaypalItem()).toList(),
+      //     }
+      //   }
+      // ];
+      //
+      // final payment = await paypal.createPayment(
+      //   accessToken: accessToken,
+      //   intent: 'sale',
+      //   transactions: transactions,
+      //   returnUrl: "yourapp://success",
+      //   cancelUrl: "yourapp://cancel",
+      // );
+      //
+      // final approvalUrl = payment['approvalUrl'];
+      // final executeUrl = payment['executeUrl'];
+      //
+      // if (approvalUrl == null || executeUrl == null) {
+      //   state = CheckoutError("Missing approval or execute URL");
+      //   return;
+      // }
+      //
       state = CheckoutReady(
-        approvalUrl: approvalUrl,
-        executeUrl: executeUrl,
+        approvalUrl: 'approvalUrl',
+        executeUrl: 'executeUrl',
       );
     } catch (e) {
       state = CheckoutError(e.toString());
@@ -136,7 +136,31 @@ class CheckoutNotifier extends StateNotifier<CheckoutState> {
       state = CheckoutError(e.toString());
     }
   }
+
+  List<Map<String, dynamic>> transactionMap (){
+    final items = ref.read(cartProvider);
+    final total = ref.read(cartProvider.notifier).total;
+    return [
+      {
+        "amount": {
+          "total": total.toStringAsFixed(2),
+          "currency": "USD",
+          "details": {
+            "subtotal": total.toStringAsFixed(2),
+            "shipping": '0',
+            "shipping_discount": 0
+          }
+        },
+        "description": "Payment for items",
+        "item_list": {
+          "items": items.map((e) => e.toPaypalItem()).toList(),
+        }
+      }
+    ];
+  }
 }
+
+
 
 final checkoutProvider =
 StateNotifierProvider<CheckoutNotifier, CheckoutState>((ref) {

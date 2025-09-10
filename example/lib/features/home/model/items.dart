@@ -10,7 +10,7 @@ class CartItem {
     required this.description,
     required this.quantity,
     required this.price,
-    this.currency = "USD",
+    this.currency = "AUD",
   });
 
   double get total => quantity * price;
