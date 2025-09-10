@@ -1,9 +1,11 @@
+import 'package:example/core/services/routers/app_router.dart';
 import 'package:example/features/home/provider/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:paypal_integration/paypal_intregation.dart';
 
+import '../refund/provider/refund_state_provider.dart';
 import 'model/items.dart';
 
 class HomePage extends ConsumerWidget {
@@ -104,7 +106,7 @@ class HomePage extends ConsumerWidget {
                           onSuccess: (data) {
                             debugPrint("✅ Payment successful: $data");
                             Navigator.pop(context);
-                            _showDialog(context, "Payment Successful", data.toString());
+                            _showPaymentDialog(context, data,ref);
                           },
                           onError: (error) {
                             debugPrint("❌ Payment error: $error");
@@ -132,7 +134,7 @@ class HomePage extends ConsumerWidget {
                 "🛒 Add items to cart to enable checkout",
                 style: TextStyle(color: Colors.grey),
               ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
 
             // 🔗 Transaction Page Button
             TextButton(
@@ -144,6 +146,18 @@ class HomePage extends ConsumerWidget {
               ),
               onPressed: () => context.pushNamed('transaction'),
               child: const Text("Go to Transaction Page"),
+            ),
+            const SizedBox(height: 4),
+
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.blueAccent,
+                foregroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 48),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              onPressed: () => context.pushNamed('refund'),
+              child: const Text("Go to Refund Page"),
             ),
 
             // --- Checkout State Messages ---
@@ -171,16 +185,124 @@ class HomePage extends ConsumerWidget {
   void _showDialog(BuildContext context, String title, String message) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(title),
         content: Text(message),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () {
+              Navigator.pop(dialogContext); // only close the dialog
+              // If you want to close webview too, call Navigator.pop(context) AFTER
+            },
             child: const Text("OK"),
           ),
         ],
       ),
     );
   }
+  void _showPaymentDialog(BuildContext context, Map<String, dynamic> data, WidgetRef ref) {
+    final saleId = _extractSaleId(data);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) {
+        bool isRefundLoading = false;
+        String? refundError;
+        String? refundSuccess;
+
+        return StatefulBuilder(
+          builder: (context, setState) => AlertDialog(
+            title: const Text("Payment Successful"),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text("Your payment was successful!"),
+                  const SizedBox(height: 12),
+                  Text("Sale ID: ${saleId ?? 'N/A'}"),
+                  if (isRefundLoading)
+                    const Padding(
+                      padding: EdgeInsets.all(12.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  if (refundError != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(refundError!, style: const TextStyle(color: Colors.red)),
+                    ),
+                  if (refundSuccess != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(refundSuccess!, style: const TextStyle(color: Colors.green)),
+                    ),
+                ],
+              ),
+            ),
+            actions: [
+              if (saleId != null)
+                TextButton(
+                  onPressed: isRefundLoading
+                      ? null
+                      : () async {
+                    setState(() {
+                      isRefundLoading = true;
+                      refundError = null;
+                      refundSuccess = null;
+                    });
+
+                    try {
+                      final result = await ref.read(refundProvider.notifier).refundTransaction(
+                        accessToken: "YOUR_ACCESS_TOKEN",
+                        captureId: saleId,
+                        value: null,
+                        currencyCode: "USD",
+                        noteToPayer: "Refund from app",
+                      );
+
+                      setState(() {
+                        refundSuccess = "Refund successful!";
+                      });
+                    } catch (e) {
+                      setState(() {
+                        refundError = "Refund failed: $e";
+                      });
+                    } finally {
+                      setState(() {
+                        isRefundLoading = false;
+                      });
+                    }
+                  },
+                  child: const Text("Refund"),
+                ),
+              TextButton(
+                onPressed: () => Navigator.pop(dialogContext),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    // Always print the full payment data
+    debugPrint("✅ Full payment response: $data");
+  }
+
+  String? _extractSaleId(Map<String, dynamic> data) {
+    try {
+      final transactions = data['transactions'] as List<dynamic>?;
+      if (transactions != null && transactions.isNotEmpty) {
+        final relatedResources = transactions[0]['related_resources'] as List<dynamic>?;
+        if (relatedResources != null && relatedResources.isNotEmpty) {
+          final sale = relatedResources[0]['sale'] as Map<String, dynamic>?;
+          return sale?['id'] as String?;
+        }
+      }
+    } catch (_) {}
+    return null;
+  }
+
+
 }

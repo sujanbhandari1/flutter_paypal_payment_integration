@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import '../../refund/presentation/refund_Screen.dart';
 import '../provider/transaction_state_provider.dart';
 
 class TransactionHistoryScreen extends ConsumerStatefulWidget {
@@ -15,10 +17,18 @@ class _TransactionHistoryScreenState
   @override
   void initState() {
     super.initState();
-    // Fetch transactions once when screen is first opened
     Future.microtask(() {
       ref.read(transactionHistoryProvider.notifier).fetchTransactions();
     });
+  }
+
+  String _formatDate(String rawDate) {
+    try {
+      final parsed = DateTime.parse(rawDate);
+      return DateFormat("MMM d, yyyy • h:mm a").format(parsed);
+    } catch (_) {
+      return rawDate;
+    }
   }
 
   @override
@@ -84,10 +94,38 @@ class _TransactionHistoryScreenState
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        "Updated: ${info.transactionUpdatedDate}",
+                        "Updated: ${_formatDate(info.transactionUpdatedDate)}",
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.redAccent,
+                            side: const BorderSide(
+                                color: Colors.redAccent),
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                              BorderRadius.circular(10),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => RefundScreen(
+                                  transactionId:
+                                  info.transactionId,
+                                ),
+                              ),
+                            );
+                          },
+                          icon: const Icon(Icons.undo),
+                          label: const Text("Refund"),
                         ),
                       ),
                     ],
@@ -138,7 +176,8 @@ class _TransactionHistoryScreenState
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding:
+      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(8),

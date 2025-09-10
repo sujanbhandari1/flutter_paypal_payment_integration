@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:paypal_integration/paypal_intregation.dart';
-import '../../../models/transaction_history_model.dart';
+import '../models/transaction_history_model.dart';
 import '../state/transaction_state.dart';
 
 class TransactionHistoryNotifier extends StateNotifier<TransactionHistoryState> {

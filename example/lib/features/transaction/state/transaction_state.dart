@@ -1,5 +1,6 @@
 
-import '../../../models/transaction_history_model.dart';
+
+import '../models/transaction_history_model.dart';
 
 class TransactionHistoryState {
   final bool isLoading;

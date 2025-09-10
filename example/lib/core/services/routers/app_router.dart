@@ -9,6 +9,7 @@ class ExampleRouter{
   static const String splash = '/splash';
   static const String home = '/home';
   static const String transaction = '/transaction';
+  static const String refund = '/refund';
 
   static String toName(String path) => path.replaceFirst('/', '');
 
