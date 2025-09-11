@@ -102,34 +102,6 @@ class _TransactionHistoryScreenState
                           color: Colors.grey,
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.redAccent,
-                            side: const BorderSide(
-                                color: Colors.redAccent),
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(10),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => RefundScreen(
-                                  transactionId:
-                                  info.transactionId,
-                                ),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.undo),
-                          label: const Text("Refund"),
-                        ),
-                      ),
                     ],
                   ),
                 ),

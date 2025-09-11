@@ -222,6 +222,8 @@ class HomePage extends ConsumerWidget {
                 children: [
                   const Text("Your payment was successful!"),
                   const SizedBox(height: 12),
+                  Text("Transaction ID: ${data['id']}",style: TextStyle(fontSize: 12),),
+                  const SizedBox(height: 12),
                   Text("Sale ID: ${saleId ?? 'N/A'}"),
                   if (isRefundLoading)
                     const Padding(
