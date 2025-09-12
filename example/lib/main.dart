@@ -1,4 +1,3 @@
-// ignore_for_file: use_build_context_synchronously, must_be_immutable
 
 import 'package:example/core/services/routers/app_router.dart';
 import 'package:flutter/material.dart';
