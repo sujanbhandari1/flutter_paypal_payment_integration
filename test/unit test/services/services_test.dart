@@ -5,8 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:paypal_integration/paypal_intregation.dart';
 
 import 'mocks.mocks.dart'; // generated mock file
-import 'package:paypal_integration/core/services/models/form_data.dart';
-import 'package:paypal_integration/core/services/network/dio_http_service.dart';
 
 void main() {
   late MockDioHttpService mockHttp;

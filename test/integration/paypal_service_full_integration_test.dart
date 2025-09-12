@@ -42,7 +42,6 @@ void main() {
 
     // 2️⃣ Start a single local HTTP server for all redirects
     final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 8080);
-    print('Listening on http://localhost:8080/return');
 
     final saleCompleter = Completer<Map<String, String>>();
     final authCompleter = Completer<Map<String, String>>();
@@ -79,13 +78,10 @@ void main() {
       cancelUrl: 'http://localhost:8080/cancel',
     );
 
-    print('👉 Open this URL in browser to approve sale: ${paymentResponse['approvalUrl']}');
 
     // 4️⃣ Wait for user approval (sale)
     final saleRedirectParams = await saleCompleter.future;
     final salePayerId = saleRedirectParams['PayerID'];
-    final salePaymentId = saleRedirectParams['paymentId'];
-    print('✅ Got PayerID=$salePayerId for PaymentID=$salePaymentId');
 
     // 5️⃣ Execute payment (sale)
     final executedPayment = await paypal.executePayment(
@@ -96,11 +92,9 @@ void main() {
 
     expect(executedPayment['id'], paymentResponse['id']);
     expect(executedPayment['state'], 'approved');
-    print('✅ Sale payment executed successfully');
 
     // 6️⃣ Refund the sale payment
     final captureId = executedPayment['transactions'][0]['related_resources'][0]['sale']['id'];
-    print('🔄 Refunding capture ID: $captureId');
 
     final refundResponse = await paypal.refundCapture(
       accessToken: accessToken,
@@ -111,7 +105,6 @@ void main() {
     );
 
     expect(refundResponse['status'], 'COMPLETED');
-    print('✅ Refund completed successfully');
 
     // 7️⃣ Get payment details
     final paymentDetails = await paypal.getPaymentDetails(
@@ -120,7 +113,6 @@ void main() {
     );
 
     expect(paymentDetails['id'], paymentResponse['id']);
-    print('📄 Sale payment details: ${paymentDetails['state']}');
 
     // 8️⃣ List transactions (last 7 days)
     String formatForPaypal(DateTime dt) {
@@ -150,10 +142,8 @@ void main() {
     );
 
     expect(transactions, isNotNull);
-    print('📊 Transactions listed successfully');
 
     // 9️⃣ Authorization → Capture flow
-    print('⚡ Testing authorization/capture flow...');
     final authPayment = await paypal.createPayment(
       accessToken: accessToken,
       intent: 'authorize',
@@ -167,7 +157,6 @@ void main() {
       cancelUrl: 'http://localhost:8080/cancel',
     );
 
-    print('👉 Open this URL in browser to approve authorization: ${authPayment['approvalUrl']}');
 
     final authRedirectParams = await authCompleter.future;
     final authPayerId = authRedirectParams['PayerID'];
@@ -195,7 +184,6 @@ void main() {
     );
 
     expect(captureResponse['status'], 'COMPLETED');
-    print('✅ Authorized payment captured successfully');
 
     // Close the server after all flows
     await server.close();
