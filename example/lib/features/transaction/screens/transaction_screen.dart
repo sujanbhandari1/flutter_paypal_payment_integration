@@ -1,9 +1,7 @@
-// ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import '../../refund/presentation/refund_Screen.dart';
 import '../provider/transaction_state_provider.dart';
 
 class TransactionHistoryScreen extends ConsumerStatefulWidget {
@@ -102,34 +100,6 @@ class _TransactionHistoryScreenState
                           color: Colors.grey,
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      Align(
-                        alignment: Alignment.centerRight,
-                        child: OutlinedButton.icon(
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.redAccent,
-                            side: const BorderSide(
-                                color: Colors.redAccent),
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(10),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => RefundScreen(
-                                  transactionId:
-                                  info.transactionId,
-                                ),
-                              ),
-                            );
-                          },
-                          icon: const Icon(Icons.undo),
-                          label: const Text("Refund"),
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -181,7 +151,6 @@ class _TransactionHistoryScreenState
       padding:
       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(

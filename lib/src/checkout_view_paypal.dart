@@ -1,23 +1,20 @@
+// Import necessary packages for Flutter UI, InAppWebView, and local checkout services.
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'checkout_services.dart';
 
+/// A Flutter widget that provides a PayPal checkout experience using an InAppWebView.
 class PaypalCheckoutView extends StatefulWidget {
+  /// Your PayPal client ID.
   final String clientId;
+  /// Your PayPal secret key.
   final String secretKey;
+  /// Set to true for sandbox mode (testing), false for live mode.
   final bool sandboxMode;
 
-  /// PayPal v1 "transactions" list
+  /// A list of transactions to be processed. Each transaction is a map.
   /// Example:
-  /// [
-  ///   {
-  ///     "amount": {
-  ///       "total": "10.00",
-  ///       "currency": "USD",
-  ///     },
-  ///     "description": "My test payment"
-  ///   }
-  /// ]
+  ///
   final List<Map<String, dynamic>> transactions;
 
   final String returnUrl;
@@ -29,6 +26,7 @@ class PaypalCheckoutView extends StatefulWidget {
   final VoidCallback onCancel;
 
   final Widget? loadingIndicator;
+  final PaypalService? paypalService;
 
   const PaypalCheckoutView({
     super.key,
@@ -42,6 +40,8 @@ class PaypalCheckoutView extends StatefulWidget {
     required this.onCancel,
     this.sandboxMode = false,
     this.loadingIndicator,
+    this.paypalService, // add this
+
   });
 
   @override
@@ -58,7 +58,7 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
   @override
   void initState() {
     super.initState();
-    _paypal = PaypalService(
+    _paypal = widget.paypalService ?? PaypalService(
       clientId: widget.clientId,
       secretKey: widget.secretKey,
       sandboxMode: widget.sandboxMode,
