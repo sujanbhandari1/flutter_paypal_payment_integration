@@ -167,12 +167,28 @@ void main() {
       payerId: authPayerId!,
     );
 
-    final relatedResources = executedAuthPayment['transactions'][0]['related_resources'];
-    if (relatedResources.isEmpty || relatedResources[0]['authorization'] == null) {
-      fail('Authorization not returned by PayPal sandbox. Cannot capture.');
+    // 🔑 Refetch payment details to get authorization
+    Map<String, dynamic>? authorization;
+    for (int i = 0; i < 5; i++) {
+      final refreshedPayment = await paypal.getPaymentDetails(
+        accessToken: accessToken,
+        paymentId: executedAuthPayment['id'],
+      );
+
+      final relatedResources = refreshedPayment['transactions'][0]['related_resources'];
+      if (relatedResources.isNotEmpty && relatedResources[0]['authorization'] != null) {
+        authorization = relatedResources[0]['authorization'];
+        break;
+      }
+
+      await Future.delayed(const Duration(seconds: 3));
     }
 
-    final authorizationId = relatedResources[0]['authorization']['id'];
+    if (authorization == null) {
+      fail('Authorization not returned by PayPal sandbox after retries. Cannot capture.');
+    }
+
+    final authorizationId = authorization['id'];
 
     // Capture the authorized payment
     final captureResponse = await paypal.captureAuthorization(
