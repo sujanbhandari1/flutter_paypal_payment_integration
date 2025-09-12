@@ -1,4 +1,6 @@
-// test/integration/paypal_service_full_integration_test.dart
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:paypal_integration/paypal_intregation.dart';
 import 'package:dio/dio.dart';
@@ -11,13 +13,9 @@ void main() {
       "EHkjluknVRt7RemM3BMP6q5WCB2xkOJ_LI4K7BBLCiGMyFOGDpR5zCVdTMXdJ9h5k2l2-zudQ8UjJnWp";
   const sandboxMode = true;
 
-  // ⚠️ Use sandbox payer ID here, NOT email
-  const sandboxBuyerPayerId = 'P4DFGHGXJ2XCA';
-
   late PaypalService paypal;
 
   setUp(() {
-    // Create Dio instance with logging
     final dio = Dio();
     dio.interceptors.add(
       LogInterceptor(
@@ -29,7 +27,6 @@ void main() {
       ),
     );
 
-    // Initialize PayPal service with Dio
     paypal = PaypalService(
       clientId: clientId,
       secretKey: secretKey,
@@ -37,76 +34,170 @@ void main() {
     );
   });
 
-  test('Full automated PayPal flow', () async {
+  test('Manual approval PayPal flow with refund, capture & transactions', () async {
     // 1️⃣ Get access token
     final tokenResponse = await paypal.getAccessToken();
     expect(tokenResponse['error'], false);
     final accessToken = tokenResponse['token'] as String;
 
-    // 2️⃣ Create payment
+    // 2️⃣ Start a single local HTTP server for all redirects
+    final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 8080);
+    print('Listening on http://localhost:8080/return');
+
+    final saleCompleter = Completer<Map<String, String>>();
+    final authCompleter = Completer<Map<String, String>>();
+
+    server.listen((HttpRequest request) async {
+      final params = request.uri.queryParameters;
+
+      // Respond to user in browser
+      request.response
+        ..statusCode = 200
+        ..headers.contentType = ContentType.html
+        ..write("<h2>Payment approved ✅ You can close this tab.</h2>");
+      await request.response.close();
+
+      // Complete the appropriate completer
+      if (!saleCompleter.isCompleted) {
+        saleCompleter.complete(params);
+      } else if (!authCompleter.isCompleted) {
+        authCompleter.complete(params);
+      }
+    });
+
+    // 3️⃣ Create payment (sale intent)
     final paymentResponse = await paypal.createPayment(
       accessToken: accessToken,
-      intent: 'sale', // immediate capture
+      intent: 'sale',
       transactions: [
         {
           'amount': {'total': '10.00', 'currency': 'USD'},
-          'description': 'Automated Integration Test Payment',
+          'description': 'Integration Test Payment',
         }
       ],
-      returnUrl: 'https://example.com/return',
-      cancelUrl: 'https://example.com/cancel',
+      returnUrl: 'http://localhost:8080/return',
+      cancelUrl: 'http://localhost:8080/cancel',
     );
 
-    expect(paymentResponse['id'], isNotNull);
-    expect(paymentResponse['approvalUrl'], isNotNull);
-    expect(paymentResponse['executeUrl'], isNotNull);
+    print('👉 Open this URL in browser to approve sale: ${paymentResponse['approvalUrl']}');
 
-    print('Payment created with ID: ${paymentResponse['id']}');
+    // 4️⃣ Wait for user approval (sale)
+    final saleRedirectParams = await saleCompleter.future;
+    final salePayerId = saleRedirectParams['PayerID'];
+    final salePaymentId = saleRedirectParams['paymentId'];
+    print('✅ Got PayerID=$salePayerId for PaymentID=$salePaymentId');
 
-    // 3️⃣ Execute payment using sandbox payer ID
+    // 5️⃣ Execute payment (sale)
     final executedPayment = await paypal.executePayment(
       accessToken: accessToken,
       executeUrl: paymentResponse['executeUrl'],
-      payerId: sandboxBuyerPayerId,
+      payerId: salePayerId!,
     );
 
     expect(executedPayment['id'], paymentResponse['id']);
     expect(executedPayment['state'], 'approved');
+    print('✅ Sale payment executed successfully');
 
-    print('Payment executed successfully');
+    // 6️⃣ Refund the sale payment
+    final captureId = executedPayment['transactions'][0]['related_resources'][0]['sale']['id'];
+    print('🔄 Refunding capture ID: $captureId');
 
-    // 4️⃣ Refund payment
-    final captureId =
-    executedPayment['transactions'][0]['related_resources'][0]['sale']['id'];
     final refundResponse = await paypal.refundCapture(
       accessToken: accessToken,
       captureId: captureId,
       value: '10.00',
       currencyCode: 'USD',
-      noteToPayer: 'Automated test refund',
+      noteToPayer: 'Automated integration test refund',
     );
 
     expect(refundResponse['status'], 'COMPLETED');
-    print('Refund completed successfully');
+    print('✅ Refund completed successfully');
 
-    // 5️⃣ Get payment details
+    // 7️⃣ Get payment details
     final paymentDetails = await paypal.getPaymentDetails(
       accessToken: accessToken,
       paymentId: paymentResponse['id'],
     );
-    expect(paymentDetails['id'], paymentResponse['id']);
-    print('Payment details retrieved');
 
-    // 6️⃣ List transactions (last 7 days)
+    expect(paymentDetails['id'], paymentResponse['id']);
+    print('📄 Sale payment details: ${paymentDetails['state']}');
+
+    // 8️⃣ List transactions (last 7 days)
+    String formatForPaypal(DateTime dt) {
+      final offset = dt.timeZoneOffset;
+      final sign = offset.isNegative ? '-' : '+';
+      final hours = offset.inHours.abs().toString().padLeft(2, '0');
+      final minutes = (offset.inMinutes.abs() % 60).toString().padLeft(2, '0');
+      final tz = '$sign$hours$minutes';
+      return '${dt.year.toString().padLeft(4, '0')}-'
+          '${dt.month.toString().padLeft(2, '0')}-'
+          '${dt.day.toString().padLeft(2, '0')}T'
+          '${dt.hour.toString().padLeft(2, '0')}:'
+          '${dt.minute.toString().padLeft(2, '0')}:'
+          '${dt.second.toString().padLeft(2, '0')}$tz';
+    }
+
+    final startDate = formatForPaypal(DateTime.now().subtract(const Duration(days: 7)));
+    final endDate = formatForPaypal(DateTime.now());
+
     final transactions = await paypal.listTransactions(
       accessToken: accessToken,
-      startDate: DateTime.now()
-          .subtract(const Duration(days: 7))
-          .toIso8601String(),
-      endDate: DateTime.now().toIso8601String(),
+      startDate: startDate,
+      endDate: endDate,
+      fields: 'all',
+      pageSize: 40,
+      page: 1,
     );
 
     expect(transactions, isNotNull);
-    print('Transactions listed successfully');
-  }, timeout: const Timeout(Duration(minutes: 5)));
+    print('📊 Transactions listed successfully');
+
+    // 9️⃣ Authorization → Capture flow
+    print('⚡ Testing authorization/capture flow...');
+    final authPayment = await paypal.createPayment(
+      accessToken: accessToken,
+      intent: 'authorize',
+      transactions: [
+        {
+          'amount': {'total': '5.00', 'currency': 'USD'},
+          'description': 'Authorization test',
+        }
+      ],
+      returnUrl: 'http://localhost:8080/return',
+      cancelUrl: 'http://localhost:8080/cancel',
+    );
+
+    print('👉 Open this URL in browser to approve authorization: ${authPayment['approvalUrl']}');
+
+    final authRedirectParams = await authCompleter.future;
+    final authPayerId = authRedirectParams['PayerID'];
+
+    final executedAuthPayment = await paypal.executePayment(
+      accessToken: accessToken,
+      executeUrl: authPayment['executeUrl'],
+      payerId: authPayerId!,
+    );
+
+    final relatedResources = executedAuthPayment['transactions'][0]['related_resources'];
+    if (relatedResources.isEmpty || relatedResources[0]['authorization'] == null) {
+      fail('Authorization not returned by PayPal sandbox. Cannot capture.');
+    }
+
+    final authorizationId = relatedResources[0]['authorization']['id'];
+
+    // Capture the authorized payment
+    final captureResponse = await paypal.captureAuthorization(
+      accessToken: accessToken,
+      authorizationId: authorizationId,
+      total: '5.00',
+      currency: 'USD',
+      isFinalCapture: true,
+    );
+
+    expect(captureResponse['status'], 'COMPLETED');
+    print('✅ Authorized payment captured successfully');
+
+    // Close the server after all flows
+    await server.close();
+  }, timeout: const Timeout(Duration(minutes: 15)));
 }
