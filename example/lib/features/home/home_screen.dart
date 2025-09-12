@@ -1,10 +1,13 @@
 
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:example/features/home/provider/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:paypal_integration/paypal_intregation.dart';
 
+// ignore: unused_import
 import '../refund/provider/refund_state_provider.dart';
 import 'model/items.dart';
 
@@ -255,13 +258,6 @@ class HomePage extends ConsumerWidget {
                     });
 
                     try {
-                      final result = await ref.read(refundProvider.notifier).refundTransaction(
-                        accessToken: "YOUR_ACCESS_TOKEN",
-                        captureId: saleId,
-                        value: null,
-                        currencyCode: "USD",
-                        noteToPayer: "Refund from app",
-                      );
 
                       setState(() {
                         refundSuccess = "Refund successful!";
