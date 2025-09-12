@@ -5,7 +5,6 @@ import '../states/refund_state.dart';
 
 final refundProvider =
 StateNotifierProvider<RefundNotifier, RefundState>((ref) {
-  // you’ll probably inject your initialized PaypalService instance here
   final paypal = PaypalService(
     clientId: "AfDlfuKlj48GElNvFRld1LZIPGAhIbyCm0MLHuhlznh0nl_eX5YiEmJHAJPVzemw0waxHIRH4sdg1It1",
     secretKey: "EHkjluknVRt7RemM3BMP6q5WCB2xkOJ_LI4K7BBLCiGMyFOGDpR5zCVdTMXdJ9h5k2l2-zudQ8UjJnWp",
@@ -29,7 +28,7 @@ class RefundNotifier extends StateNotifier<RefundState> {
     state = state.copyWith(isLoading: true, error: null);
     try {
       final accessToken = await _paypal.getAccessToken();
-      final token = accessToken['token']; // ✅ Extract string here
+      final token = accessToken['token'];
 
       final result = await _paypal.refundCapture(
         accessToken: '$token',

@@ -24,11 +24,6 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   }
 
 
-  /// Initializes the animation controller and defines the fade and scale animations.
-  ///
-  /// The animation controller is set up with a duration of 1100 milliseconds.
-  /// The fade animation transitions opacity from 0 to 1 with an ease-in curve.
-  /// The scale animation transitions scale from 0.7 to 2.0 with an ease-out curve.
 
   void initializeAnimationController(){
     _controller = AnimationController(
@@ -49,10 +44,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 
 
   navigateToHomeScreen() {
-    ///navigate the splash screen to home screen
-    ///with some delay
-    ///
-    Future.delayed(const Duration(seconds: 1),(){
+    Future.delayed(const Duration(seconds: 2),(){
       context.goNamed('home');
     });
   }
