@@ -1,5 +1,3 @@
-
-
 import '../models/transaction_history_model.dart';
 
 class TransactionHistoryState {
@@ -7,11 +5,7 @@ class TransactionHistoryState {
   final TransactionHistoryResponse? data;
   final String? error;
 
-  TransactionHistoryState({
-    this.isLoading = false,
-    this.data,
-    this.error,
-  });
+  TransactionHistoryState({this.isLoading = false, this.data, this.error});
 
   TransactionHistoryState copyWith({
     bool? isLoading,

@@ -45,7 +45,8 @@ class BaseFormData {
 
   /// Static method to convert formFields to string map
   static Map<String, String> convertDynamicToStringMap(
-      Map<String, dynamic> formFields) {
+    Map<String, dynamic> formFields,
+  ) {
     Map<String, String> stringMap = {};
 
     for (var key in formFields.keys) {

@@ -1,12 +1,10 @@
 // lib/src/services/paypal_service.dart
 import 'dart:convert';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:paypal_integration/core/services/network/http_service.dart';
 
 import '../core/services/models/form_data.dart';
 import '../core/services/network/dio_http_service.dart';
-
 
 class PaypalService {
   final String clientId;
@@ -15,24 +13,15 @@ class PaypalService {
 
   late final DioHttpService _http;
 
-  // PaypalService({
-  //   required this.clientId,
-  //   required this.secretKey,
-  //   required this.sandboxMode,
-  //   DioHttpService? httpService, // <-- allow injection
-  //
-  // }) {
-  //   _http = DioHttpService(
-  //     baseUrl: sandboxMode ? 'https://api-m.sandbox.paypal.com' : 'https://api.paypal.com',
-  //   );
-  // }
+
   PaypalService({
     required this.clientId,
     required this.secretKey,
     required this.sandboxMode,
-    DioHttpService? httpService, // <-- allow injection
+    DioHttpService? httpService,
   }) {
-    _http = httpService ??
+    _http =
+        httpService ??
         DioHttpService(
           baseUrl: sandboxMode
               ? 'https://api-m.sandbox.paypal.com'
@@ -40,7 +29,6 @@ class PaypalService {
         );
   }
   void injectHttp(DioHttpService service) => _http = service; //optional
-
 
   // ---------------------------
   // Auth
@@ -51,38 +39,35 @@ class PaypalService {
         : "https://api.paypal.com";
 
     try {
-      var authToken = base64.encode(
-        utf8.encode("$clientId:$secretKey"),
-      );
-      final response = await Dio()
-          .post('$baseUrl/v1/oauth2/token?grant_type=client_credentials',
+      var authToken = base64.encode(utf8.encode("$clientId:$secretKey"));
+      final response = await Dio().post(
+        '$baseUrl/v1/oauth2/token?grant_type=client_credentials',
 
-          options: Options(
-            headers: {
-              'Authorization': 'Basic $authToken',
-              'Content-Type': 'application/x-www-form-urlencoded'
-            },
-          ));
+        options: Options(
+          headers: {
+            'Authorization': 'Basic $authToken',
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        ),
+      );
       final body = response.data;
       return {
         'error': false,
         'message': "Success",
-        'token': body["access_token"]
+        'token': body["access_token"],
       };
     } on DioException {
       return {
         'error': true,
-        'message': "Your PayPal credentials seems incorrect"
+        'message': "Your PayPal credentials seems incorrect",
       };
     } catch (e) {
       return {
         'error': true,
-        'message': "Unable to proceed, check your internet connection."
+        'message': "Unable to proceed, check your internet connection.",
       };
     }
   }
-
-
 
   Map<String, String> _bearer(String token) => {
     'Authorization': 'Bearer $token',
@@ -104,20 +89,20 @@ class PaypalService {
     String? noteToPayer,
     String? experienceProfileId,
   }) async {
-    debugPrint('⨝⨹⨹⨹⨝ PaypalService To String Map');
-    // enforce PayPal note_to_payer 165 char max (defensive)
+
     final trimmedNote = (noteToPayer ?? '').trim();
-    final safeNote = trimmedNote.substring(0, trimmedNote.length > 165 ? 165 : trimmedNote.length);
+    final safeNote = trimmedNote.substring(
+      0,
+      trimmedNote.length > 165 ? 165 : trimmedNote.length,
+    );
     final body = {
       'intent': intent,
       'payer': {'payment_method': 'paypal'},
       'transactions': transactions,
-      'redirect_urls': {
-        'return_url': returnUrl,
-        'cancel_url': cancelUrl,
-      },
+      'redirect_urls': {'return_url': returnUrl, 'cancel_url': cancelUrl},
       if (noteToPayer != null) 'note_to_payer': safeNote,
-      if (experienceProfileId != null) 'experience_profile_id': experienceProfileId,
+      if (experienceProfileId != null)
+        'experience_profile_id': experienceProfileId,
     };
 
     final res = await _http.post(
@@ -134,11 +119,11 @@ class PaypalService {
           .map((e) => Map<String, dynamic>.from(e as Map))
           .toList(growable: false);
       final approvalUrl = links.firstWhere(
-            (l) => l['rel'] == 'approval_url',
+        (l) => l['rel'] == 'approval_url',
         orElse: () => {},
       )['href'];
       final executeUrl = links.firstWhere(
-            (l) => l['rel'] == 'execute',
+        (l) => l['rel'] == 'execute',
         orElse: () => {},
       )['href'];
 
@@ -199,10 +184,12 @@ class PaypalService {
   }) async {
     final res = await _http.post(
       '/v1/payments/authorization/$authorizationId/capture',
-      formData: BaseFormData(formFields: {
-        'amount': {'total': total, 'currency': currency},
-        'is_final_capture': isFinalCapture,
-      }),
+      formData: BaseFormData(
+        formFields: {
+          'amount': {'total': total, 'currency': currency},
+          'is_final_capture': isFinalCapture,
+        },
+      ),
       contentType: ContentType.json,
       headers: _bearer(accessToken),
     );
@@ -226,15 +213,11 @@ class PaypalService {
     String? value, // required for partial refunds
     String? currencyCode,
     String? noteToPayer,
-
   }) async {
     final body = <String, dynamic>{};
 
     if (value != null && currencyCode != null) {
-      body['amount'] = {
-        'value': value,
-        'currency_code': currencyCode,
-      };
+      body['amount'] = {'value': value, 'currency_code': currencyCode};
     }
     if (noteToPayer != null) {
       body['note_to_payer'] = noteToPayer;

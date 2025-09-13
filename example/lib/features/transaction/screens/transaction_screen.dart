@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -21,6 +20,13 @@ class _TransactionHistoryScreenState
       ref.read(transactionHistoryProvider.notifier).fetchTransactions();
     });
   }
+  @override
+  void dispose() {
+    ref.read(transactionHistoryProvider.notifier).dispose();
+    super.dispose();
+  }
+
+
 
   String _formatDate(String rawDate) {
     try {
@@ -36,77 +42,72 @@ class _TransactionHistoryScreenState
     final state = ref.watch(transactionHistoryProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Transaction History"),
-        elevation: 2,
-      ),
+      appBar: AppBar(title: const Text("Transaction History"), elevation: 2),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: state.isLoading
             ? const Center(child: CircularProgressIndicator())
             : state.error != null
             ? _buildMessage("❌ Error: ${state.error}", Colors.red)
-            : state.data == null ||
-            state.data!.transactionDetails.isEmpty
+            : state.data == null || state.data!.transactionDetails.isEmpty
             ? _buildMessage("No transactions found", Colors.grey)
             : ListView.builder(
-          itemCount: state.data!.transactionDetails.length,
-          itemBuilder: (context, index) {
-            final txn =
-            state.data!.transactionDetails[index];
-            final info = txn.transactionInfo;
+                itemCount: state.data!.transactionDetails.length,
+                itemBuilder: (context, index) {
+                  final txn = state.data!.transactionDetails[index];
+                  final info = txn.transactionInfo;
 
-            return Card(
-              margin: const EdgeInsets.symmetric(
-                  vertical: 8, horizontal: 4),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              elevation: 3,
-              child: ListTile(
-                contentPadding: const EdgeInsets.all(16),
-                title: Text(
-                  "Txn ID: ${info.transactionId}",
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                subtitle: Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: Column(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          _buildStatusBadge(
-                              info.transactionStatus),
-                          const SizedBox(width: 8),
-                          Text(
-                            "${info.transactionAmount.value} ${info.transactionAmount.currencyCode}",
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        "Updated: ${_formatDate(info.transactionUpdatedDate)}",
+                  return Card(
+                    margin: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 4,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 3,
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(16),
+                      title: Text(
+                        "Txn ID: ${info.transactionId}",
                         style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
                       ),
-                    ],
-                  ),
-                ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                _buildStatusBadge(info.transactionStatus),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "${info.transactionAmount.value} ${info.transactionAmount.currencyCode}",
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              "Updated: ${_formatDate(info.transactionUpdatedDate)}",
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(12),
@@ -122,9 +123,7 @@ class _TransactionHistoryScreenState
           icon: const Icon(Icons.refresh),
           label: const Text("Refresh Transactions"),
           onPressed: () {
-            ref
-                .read(transactionHistoryProvider.notifier)
-                .fetchTransactions();
+            ref.read(transactionHistoryProvider.notifier).fetchTransactions();
           },
         ),
       ),
@@ -148,11 +147,8 @@ class _TransactionHistoryScreenState
     }
 
     return Container(
-      padding:
-      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(8)),
       child: Text(
         status,
         style: TextStyle(

@@ -32,7 +32,7 @@ void main() {
         'links': [
           {'rel': 'approval_url', 'href': 'https://paypal.com/approve'},
           {'rel': 'execute', 'href': 'https://paypal.com/execute'},
-        ]
+        ],
       };
 
       final dioResponse = Response<Map<String, dynamic>>(
@@ -41,12 +41,14 @@ void main() {
         data: responseData,
       );
 
-      when(mockHttp.post(
-        any,
-        formData: anyNamed('formData'),
-        contentType: anyNamed('contentType'),
-        headers: anyNamed('headers'),
-      )).thenAnswer((_) async => dioResponse);
+      when(
+        mockHttp.post(
+          any,
+          formData: anyNamed('formData'),
+          contentType: anyNamed('contentType'),
+          headers: anyNamed('headers'),
+        ),
+      ).thenAnswer((_) async => dioResponse);
 
       final result = await paypal.createPayment(
         accessToken: 'fake_token',
@@ -67,12 +69,14 @@ void main() {
         data: {'id': 'PAY-EXECUTED', 'state': 'approved'},
       );
 
-      when(mockHttp.post(
-        any,
-        formData: anyNamed('formData'),
-        contentType: anyNamed('contentType'),
-        headers: anyNamed('headers'),
-      )).thenAnswer((_) async => dioResponse);
+      when(
+        mockHttp.post(
+          any,
+          formData: anyNamed('formData'),
+          contentType: anyNamed('contentType'),
+          headers: anyNamed('headers'),
+        ),
+      ).thenAnswer((_) async => dioResponse);
 
       final result = await paypal.executePayment(
         accessToken: 'fake_token',
@@ -90,12 +94,14 @@ void main() {
         data: {'id': 'CAPTURE-1', 'state': 'completed'},
       );
 
-      when(mockHttp.post(
-        any,
-        formData: anyNamed('formData'),
-        contentType: anyNamed('contentType'),
-        headers: anyNamed('headers'),
-      )).thenAnswer((_) async => dioResponse);
+      when(
+        mockHttp.post(
+          any,
+          formData: anyNamed('formData'),
+          contentType: anyNamed('contentType'),
+          headers: anyNamed('headers'),
+        ),
+      ).thenAnswer((_) async => dioResponse);
 
       final result = await paypal.captureAuthorization(
         accessToken: 'fake_token',
@@ -114,11 +120,13 @@ void main() {
         data: {'id': 'RFD-1', 'status': 'COMPLETED'},
       );
 
-      when(mockHttp.post(
-        any,
-        contentType: anyNamed('contentType'),
-        headers: anyNamed('headers'),
-      )).thenAnswer((_) async => dioResponse);
+      when(
+        mockHttp.post(
+          any,
+          contentType: anyNamed('contentType'),
+          headers: anyNamed('headers'),
+        ),
+      ).thenAnswer((_) async => dioResponse);
 
       final result = await paypal.refundCapture(
         accessToken: 'fake_token',
@@ -137,15 +145,17 @@ void main() {
         statusCode: 204,
       );
 
-      when(mockHttp.post(
-        any,
-        formData: anyNamed('formData'),
-        contentType: anyNamed('contentType'),
-        headers: anyNamed('headers'),
-      )).thenAnswer((_) async => dioResponse);
+      when(
+        mockHttp.post(
+          any,
+          formData: anyNamed('formData'),
+          contentType: anyNamed('contentType'),
+          headers: anyNamed('headers'),
+        ),
+      ).thenAnswer((_) async => dioResponse);
 
       expect(
-            () async => await paypal.voidAuthorization(
+        () async => await paypal.voidAuthorization(
           accessToken: 'fake_token',
           authorizationId: 'auth123',
         ),
@@ -160,10 +170,9 @@ void main() {
         data: {'id': 'PAY-123', 'state': 'approved'},
       );
 
-      when(mockHttp.get(
-        any,
-        headers: anyNamed('headers'),
-      )).thenAnswer((_) async => dioResponse);
+      when(
+        mockHttp.get(any, headers: anyNamed('headers')),
+      ).thenAnswer((_) async => dioResponse);
 
       final result = await paypal.getPaymentDetails(
         accessToken: 'fake_token',
@@ -179,16 +188,20 @@ void main() {
         statusCode: 200,
         data: {
           'transaction_details': [
-            {'transaction_info': {'transaction_id': 'TXN-1'}},
-          ]
+            {
+              'transaction_info': {'transaction_id': 'TXN-1'},
+            },
+          ],
         },
       );
 
-      when(mockHttp.get(
-        any,
-        headers: anyNamed('headers'),
-        queryParameters: anyNamed('queryParameters'),
-      )).thenAnswer((_) async => dioResponse);
+      when(
+        mockHttp.get(
+          any,
+          headers: anyNamed('headers'),
+          queryParameters: anyNamed('queryParameters'),
+        ),
+      ).thenAnswer((_) async => dioResponse);
 
       final result = await paypal.listTransactions(
         accessToken: 'fake_token',

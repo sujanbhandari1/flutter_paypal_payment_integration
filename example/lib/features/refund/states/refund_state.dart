@@ -1,14 +1,9 @@
-
 class RefundState {
   final bool isLoading;
   final String? error;
   final Map<String, dynamic>? data;
 
-  const RefundState({
-    this.isLoading = false,
-    this.error,
-    this.data,
-  });
+  const RefundState({this.isLoading = false, this.error, this.data});
 
   RefundState copyWith({
     bool? isLoading,

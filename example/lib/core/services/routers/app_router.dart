@@ -5,14 +5,13 @@ import '../../../features/home/home_screen.dart';
 import '../../../features/splash/splash_screen.dart';
 import '../../../features/transaction/screens/transaction_screen.dart';
 
-class ExampleRouter{
+class ExampleRouter {
   static const String splash = '/splash';
   static const String home = '/home';
   static const String transaction = '/transaction';
   static const String refund = '/refund';
 
   static String toName(String path) => path.replaceFirst('/', '');
-
 
   static final GoRouter router = GoRouter(
     initialLocation: splash,
@@ -27,7 +26,7 @@ class ExampleRouter{
         path: home,
         name: toName(home),
         builder: (BuildContext context, GoRouterState state) {
-          return  HomePage();
+          return HomePage();
         },
         routes: [
           GoRoute(
@@ -37,12 +36,12 @@ class ExampleRouter{
               return const TransactionHistoryScreen();
             },
           ),
-        ]
+        ],
       ),
       GoRoute(
         path: splash,
         builder: (BuildContext context, GoRouterState state) {
-          return  SplashScreen();
+          return SplashScreen();
         },
       ),
     ],

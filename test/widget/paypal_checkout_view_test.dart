@@ -3,8 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 // ---------------- Fake Paypal Service ----------------
 class FakePaypalService {
-  Future<Map<String, dynamic>> executePayment() async =>
-      {'id': 'PAY-EXECUTED', 'state': 'approved'};
+  Future<Map<String, dynamic>> executePayment() async => {
+    'id': 'PAY-EXECUTED',
+    'state': 'approved',
+  };
 }
 
 // ---------------- Fake PaypalCheckoutView for Testing ----------------
@@ -29,7 +31,8 @@ class FakePaypalCheckoutView extends StatelessWidget {
         if (loadingIndicator != null) loadingIndicator!,
         ElevatedButton(
           key: const ValueKey('fake-execute-button'),
-          onPressed: () => onSuccess({'id': 'PAY-EXECUTED', 'state': 'approved'}),
+          onPressed: () =>
+              onSuccess({'id': 'PAY-EXECUTED', 'state': 'approved'}),
           child: const Text('Execute Payment'),
         ),
       ],
@@ -39,7 +42,9 @@ class FakePaypalCheckoutView extends StatelessWidget {
 
 // ---------------- Test ----------------
 void main() {
-  testWidgets('PaypalCheckoutView loads and calls success callback', (tester) async {
+  testWidgets('PaypalCheckoutView loads and calls success callback', (
+    tester,
+  ) async {
     bool successCalled = false;
     bool errorCalled = false;
     bool cancelCalled = false;
