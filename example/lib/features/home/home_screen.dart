@@ -1,4 +1,5 @@
 import 'package:example/features/home/provider/cart_provider.dart';
+import 'package:example/utils/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,7 +7,14 @@ import 'package:paypal_integration/paypal_integration.dart';
 import '../refund/provider/refund_state_provider.dart';
 import 'model/items.dart';
 
+/// The main screen of the example application, showcasing PayPal integration.
+///
+/// This widget displays a list of products, allows users to add them to a cart,
+/// and initiates the PayPal checkout process. It also provides a button to
+/// navigate to a transaction history page and demonstrates refund functionality
+/// after a successful payment.
 class HomePage extends ConsumerWidget {
+  /// Creates a [HomePage] widget.
   const HomePage({super.key});
 
   @override
@@ -174,6 +182,8 @@ class HomePage extends ConsumerWidget {
                 style: TextStyle(color: Colors.grey),
               ),
             const SizedBox(height: 4),
+
+              /// PayPal Payment Button (alternative to custom checkout flow)
               PaypalPaymentButton(
                 checkoutAppBar: AppBar(title: Text('Example Paypal'),),
                 sandboxMode: true,
@@ -272,9 +282,9 @@ class HomePage extends ConsumerWidget {
     Map<String, dynamic> data,
     WidgetRef ref,
   ) {
-    final saleId = _extractSaleId(data);
-    final amount = _extractTotal(data);
-    final currency = _extractCurrency(data);
+    final saleId = ReusableUtils.extractSaleId(data);
+    final amount = ReusableUtils.extractTotal(data);
+    final currency = ReusableUtils.extractCurrency(data);
 
     showDialog(
       context: context,
@@ -375,49 +385,7 @@ class HomePage extends ConsumerWidget {
       },
     );
 
-    // Always print the full payment data
+    // Always print the full payment data for ease.
     debugPrint("✅ Full payment response: $data");
-  }
-
-  String? _extractSaleId(Map<String, dynamic> data) {
-    try {
-      final transactions = data['transactions'] as List<dynamic>?;
-      if (transactions != null && transactions.isNotEmpty) {
-        final relatedResources =
-            transactions[0]['related_resources'] as List<dynamic>?;
-        if (relatedResources != null && relatedResources.isNotEmpty) {
-          final sale = relatedResources[0]['sale'] as Map<String, dynamic>?;
-          return sale?['id'] as String?;
-        }
-      }
-    } catch (_) {}
-    return null;
-  }
-
-  String? _extractCurrency(Map<String, dynamic> data) {
-    try {
-      final transactions = data['transactions'] as List<dynamic>?;
-      if (transactions != null && transactions.isNotEmpty) {
-        Map<String, dynamic> transactionData = transactions[0];
-        final relatedResources = transactionData['amount']['currency'];
-        if (relatedResources != null) {
-          return relatedResources;
-        }
-      }
-    } catch (_) {}
-    return null;
-  }
-
-  String? _extractTotal(Map<String, dynamic> data) {
-    try {
-      final transactions = data['transactions'] as List<dynamic>?;
-      if (transactions != null && transactions.isNotEmpty) {
-        Map<String, dynamic> transactionData = transactions[0];
-        if (transactionData['amount']['total'] != null) {
-          return transactionData['amount']['total'];
-        }
-      }
-    } catch (_) {}
-    return null;
   }
 }
