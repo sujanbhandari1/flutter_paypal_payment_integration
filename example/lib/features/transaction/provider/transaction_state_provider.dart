@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paypal_integration/paypal_intregation.dart';
+import 'package:paypal_integration/paypal_integration.dart';
 
 /// This file contains the implementation of the transaction history feature using Riverpod.
 /// It defines a [TransactionHistoryNotifier] class that manages the state of the transaction history,

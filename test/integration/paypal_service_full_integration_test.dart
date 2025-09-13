@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:paypal_integration/paypal_intregation.dart';
+import 'package:paypal_integration/paypal_integration.dart';
 import 'package:dio/dio.dart';
 
 void main() {

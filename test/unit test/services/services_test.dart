@@ -2,7 +2,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:dio/dio.dart';
-import 'package:paypal_integration/paypal_intregation.dart';
+import 'package:paypal_integration/paypal_integration.dart';
 
 import 'mocks.mocks.dart'; // generated mock file
 
