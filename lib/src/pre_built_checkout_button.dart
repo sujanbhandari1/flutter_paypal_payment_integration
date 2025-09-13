@@ -27,6 +27,11 @@ class PaypalPaymentButton extends StatelessWidget {
   /// Enable/disable button
   final bool enabled;
 
+  /// Optional customization for checkout page
+  final AppBar? checkoutAppBar;
+  final Color? checkoutBackgroundColor;
+  final Widget? checkoutLoadingIndicator;
+
   const PaypalPaymentButton({
     super.key,
     required this.clientId,
@@ -46,10 +51,13 @@ class PaypalPaymentButton extends StatelessWidget {
     this.text = 'Pay with PayPal',
     this.icon,
     this.enabled = true,
+    this.checkoutAppBar,
+    this.checkoutBackgroundColor,
+    this.checkoutLoadingIndicator,
   });
 
   void _handlePayment(BuildContext context) {
-    if (!enabled) return; // Disable tap if button is not enabled
+    if (!enabled) return; // Do nothing if disabled
 
     Navigator.push(
       context,
@@ -62,7 +70,6 @@ class PaypalPaymentButton extends StatelessWidget {
           returnUrl: returnUrl,
           cancelUrl: cancelUrl,
           onSuccess: (data) {
-            // Default success screen
             showDialog(
               context: context,
               builder: (_) => AlertDialog(
@@ -79,7 +86,6 @@ class PaypalPaymentButton extends StatelessWidget {
             onSuccess?.call(data);
           },
           onError: (error) {
-            // Default error screen
             showDialog(
               context: context,
               builder: (_) => AlertDialog(
@@ -96,12 +102,14 @@ class PaypalPaymentButton extends StatelessWidget {
             onError?.call(error);
           },
           onCancel: () {
-            // Default cancel screen
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text('Payment cancelled')),
             );
             onCancel?.call();
           },
+          appBar: checkoutAppBar,
+          backgroundColor: checkoutBackgroundColor,
+          loadingIndicator: checkoutLoadingIndicator,
         ),
       ),
     );
@@ -109,13 +117,21 @@ class PaypalPaymentButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Use withAlpha instead of deprecated withOpacity
+    final currentBackground = enabled
+        ? backgroundColor
+        : backgroundColor.withAlpha((255 * 0.5).toInt()); // 50% alpha
+    final currentTextColor = enabled
+        ? textColor
+        : textColor.withAlpha((255 * 0.5).toInt()); // 50% alpha
+
     return GestureDetector(
-      onTap: enabled ? () => _handlePayment(context) : null,
+      onTap: () => _handlePayment(context),
       child: Container(
         height: height,
         width: width,
         decoration: BoxDecoration(
-          color: enabled ? backgroundColor : backgroundColor.withOpacity(0.5),
+          color: currentBackground,
           borderRadius: BorderRadius.circular(borderRadius),
         ),
         alignment: Alignment.center,
@@ -130,7 +146,7 @@ class PaypalPaymentButton extends StatelessWidget {
             Text(
               text,
               style: TextStyle(
-                color: textColor.withOpacity(enabled ? 1 : 0.6),
+                color: currentTextColor,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),

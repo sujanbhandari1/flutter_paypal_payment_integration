@@ -108,6 +108,7 @@ class HomePage extends ConsumerWidget {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (context) => PaypalCheckoutView(
+                          appBar: AppBar(title:Text( 'Example Paypal'),),
                           sandboxMode: true,
                           clientId:
                               "AfDlfuKlj48GElNvFRld1LZIPGAhIbyCm0MLHuhlznh0nl_eX5YiEmJHAJPVzemw0waxHIRH4sdg1It1",
@@ -174,6 +175,8 @@ class HomePage extends ConsumerWidget {
               ),
             const SizedBox(height: 4),
               PaypalPaymentButton(
+                checkoutAppBar: AppBar(title: Text('Example Paypal'),),
+                sandboxMode: true,
                 enabled: cart.isNotEmpty,
                 clientId:
                     "AfDlfuKlj48GElNvFRld1LZIPGAhIbyCm0MLHuhlznh0nl_eX5YiEmJHAJPVzemw0waxHIRH4sdg1It1",

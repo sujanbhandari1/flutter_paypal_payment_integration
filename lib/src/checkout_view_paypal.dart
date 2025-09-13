@@ -18,8 +18,11 @@ class PaypalCheckoutView extends StatefulWidget {
   final Function(dynamic error) onError;
   final VoidCallback onCancel;
 
+  /// Optional customization
   final Widget? loadingIndicator;
   final PaypalService? paypalService;
+  final AppBar? appBar;
+  final Color? backgroundColor;
 
   const PaypalCheckoutView({
     super.key,
@@ -34,6 +37,8 @@ class PaypalCheckoutView extends StatefulWidget {
     this.sandboxMode = false,
     this.loadingIndicator,
     this.paypalService,
+    this.appBar,
+    this.backgroundColor,
   });
 
   @override
@@ -123,10 +128,14 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
 
   @override
   Widget build(BuildContext context) {
+    final bgColor = widget.backgroundColor ?? Theme.of(context).scaffoldBackgroundColor;
+    final appBar = widget.appBar ?? AppBar(title: const Text('PayPal Checkout'));
+
     // Payment failed UI
     if (_hasError) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Payment Failed')),
+        appBar: appBar,
+        backgroundColor: bgColor,
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -160,7 +169,8 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
     // Payment success UI
     if (_paymentSuccess && _successData != null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Payment Success')),
+        appBar: appBar,
+        backgroundColor: bgColor,
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(16),
@@ -195,7 +205,8 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
     // Payment loading UI
     if (_approvalUrl == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('PayPal Payment')),
+        appBar: appBar,
+        backgroundColor: bgColor,
         body: Center(
           child: widget.loadingIndicator ?? const CircularProgressIndicator(),
         ),
@@ -204,7 +215,8 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
 
     // WebView checkout
     return Scaffold(
-      appBar: AppBar(title: const Text('PayPal Checkout')),
+      appBar: appBar,
+      backgroundColor: bgColor,
       body: Stack(
         children: [
           InAppWebView(
