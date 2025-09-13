@@ -3,23 +3,28 @@ import 'package:paypal_integration/paypal_intregation.dart';
 
 import '../states/refund_state.dart';
 
-final refundProvider =
-StateNotifierProvider<RefundNotifier, RefundState>((ref) {
+/// Provides a [RefundNotifier] to the widget tree.
+final refundProvider = StateNotifierProvider<RefundNotifier, RefundState>((
+  ref,
+) {
   final paypal = PaypalService(
-    clientId: "AfDlfuKlj48GElNvFRld1LZIPGAhIbyCm0MLHuhlznh0nl_eX5YiEmJHAJPVzemw0waxHIRH4sdg1It1",
-    secretKey: "EHkjluknVRt7RemM3BMP6q5WCB2xkOJ_LI4K7BBLCiGMyFOGDpR5zCVdTMXdJ9h5k2l2-zudQ8UjJnWp",
+    clientId:
+        "AfDlfuKlj48GElNvFRld1LZIPGAhIbyCm0MLHuhlznh0nl_eX5YiEmJHAJPVzemw0waxHIRH4sdg1It1",
+    secretKey:
+        "EHkjluknVRt7RemM3BMP6q5WCB2xkOJ_LI4K7BBLCiGMyFOGDpR5zCVdTMXdJ9h5k2l2-zudQ8UjJnWp",
     sandboxMode: true,
   );
   return RefundNotifier(paypal);
 });
 
+/// Notifier for managing refund state.
 class RefundNotifier extends StateNotifier<RefundState> {
   final PaypalService _paypal;
 
   RefundNotifier(this._paypal) : super(const RefundState());
 
+  /// Refunds a captured transaction.
   Future<void> refundTransaction({
-    required String accessToken,
     required String captureId,
     String? value,
     String? currencyCode,

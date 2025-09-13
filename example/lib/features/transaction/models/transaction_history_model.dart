@@ -161,17 +161,11 @@ class Amount {
   Amount({required this.currencyCode, required this.value});
 
   factory Amount.fromJson(Map<String, dynamic> json) {
-    return Amount(
-      currencyCode: json['currency_code'],
-      value: json['value'],
-    );
+    return Amount(currencyCode: json['currency_code'], value: json['value']);
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'currency_code': currencyCode,
-      'value': value,
-    };
+    return {'currency_code': currencyCode, 'value': value};
   }
 }
 
@@ -220,17 +214,11 @@ class PayerName {
   PayerName({this.givenName, this.surname});
 
   factory PayerName.fromJson(Map<String, dynamic> json) {
-    return PayerName(
-      givenName: json['given_name'],
-      surname: json['surname'],
-    );
+    return PayerName(givenName: json['given_name'], surname: json['surname']);
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'given_name': givenName,
-      'surname': surname,
-    };
+    return {'given_name': givenName, 'surname': surname};
   }
 }
 
@@ -244,9 +232,7 @@ class ShippingInfo {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-    };
+    return {'name': name};
   }
 }
 
@@ -259,16 +245,14 @@ class CartInfo {
     return CartInfo(
       itemDetails: json['item_details'] != null
           ? (json['item_details'] as List<dynamic>)
-          .map((e) => ItemDetail.fromJson(e))
-          .toList()
+                .map((e) => ItemDetail.fromJson(e))
+                .toList()
           : null,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'item_details': itemDetails?.map((e) => e.toJson()).toList(),
-    };
+    return {'item_details': itemDetails?.map((e) => e.toJson()).toList()};
   }
 }
 
@@ -334,10 +318,6 @@ class ApiLink {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'href': href,
-      'rel': rel,
-      'method': method,
-    };
+    return {'href': href, 'rel': rel, 'method': method};
   }
 }

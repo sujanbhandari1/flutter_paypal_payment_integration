@@ -15,8 +15,11 @@ class DioHttpService implements HttpService {
   DioHttpService({required this.baseUrl, this.headers = const {}})
     : _dio = Dio(BaseOptions(baseUrl: baseUrl, headers: headers));
 
-  String _mapContentType(ContentType type) =>
-      type == ContentType.json ? type == ContentType.formUrlEncoded ? 'application/x-www-form-urlencoded':'application/json' : 'multipart/form-data';
+  String _mapContentType(ContentType type) => type == ContentType.json
+      ? type == ContentType.formUrlEncoded
+            ? 'application/x-www-form-urlencoded'
+            : 'application/json'
+      : 'multipart/form-data';
 
   @override
   Future<Response> get(
@@ -37,9 +40,8 @@ class DioHttpService implements HttpService {
 
   @override
   Future<Response> post(
-    String endpoint,
-   { // <-- make it optional
-     BaseFormData? formData,
+    String endpoint, { // <-- make it optional
+    BaseFormData? formData,
     Map<String, dynamic>? queryParameters,
     ContentType contentType = ContentType.formData,
     bool isAuthenticated = false,

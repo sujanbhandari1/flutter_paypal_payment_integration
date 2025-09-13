@@ -7,8 +7,10 @@ import 'checkout_services.dart';
 class PaypalCheckoutView extends StatefulWidget {
   /// Your PayPal client ID.
   final String clientId;
+
   /// Your PayPal secret key.
   final String secretKey;
+
   /// Set to true for sandbox mode (testing), false for live mode.
   final bool sandboxMode;
 
@@ -41,7 +43,6 @@ class PaypalCheckoutView extends StatefulWidget {
     this.sandboxMode = false,
     this.loadingIndicator,
     this.paypalService, // add this
-
   });
 
   @override
@@ -58,11 +59,13 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
   @override
   void initState() {
     super.initState();
-    _paypal = widget.paypalService ?? PaypalService(
-      clientId: widget.clientId,
-      secretKey: widget.secretKey,
-      sandboxMode: widget.sandboxMode,
-    );
+    _paypal =
+        widget.paypalService ??
+        PaypalService(
+          clientId: widget.clientId,
+          secretKey: widget.secretKey,
+          sandboxMode: widget.sandboxMode,
+        );
     _createPayment();
   }
 
@@ -109,9 +112,7 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
   Widget build(BuildContext context) {
     if (_approvalUrl == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: const Text('PayPal Payment'),
-        ),
+        appBar: AppBar(title: const Text('PayPal Payment')),
         body: Center(
           child: widget.loadingIndicator ?? const CircularProgressIndicator(),
         ),
@@ -119,9 +120,7 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('PayPal Checkout'),
-      ),
+      appBar: AppBar(title: const Text('PayPal Checkout')),
       body: Stack(
         children: [
           InAppWebView(
@@ -149,8 +148,7 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
               return NavigationActionPolicy.ALLOW;
             },
           ),
-          if (_progress < 1.0)
-            LinearProgressIndicator(value: _progress),
+          if (_progress < 1.0) LinearProgressIndicator(value: _progress),
         ],
       ),
     );
