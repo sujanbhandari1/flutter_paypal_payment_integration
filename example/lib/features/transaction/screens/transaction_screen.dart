@@ -20,6 +20,13 @@ class _TransactionHistoryScreenState
       ref.read(transactionHistoryProvider.notifier).fetchTransactions();
     });
   }
+  @override
+  void dispose() {
+    ref.read(transactionHistoryProvider.notifier).dispose();
+    super.dispose();
+  }
+
+
 
   String _formatDate(String rawDate) {
     try {

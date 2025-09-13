@@ -157,9 +157,9 @@ class HomePage extends ConsumerWidget {
                             );
                           },
                           returnUrl:
-                              "https://www.youtube.com/channel/UC9a1yj1xV2zeyiFPZ1gGYGw",
+                              "https://www.youtube.com/watch?v=kkzcCz1c2mE&list=RDkkzcCz1c2mE&start_radio=1",
                           cancelUrl:
-                              "https://www.youtube.com/channel/UC9a1yj1xV2zeyiFPZ1gGYGw",
+                              "https://www.youtube.com/watch?v=kkzcCz1c2mE&list=RDkkzcCz1c2mE&start_radio=1",
                         ),
                       ),
                     );
