@@ -1,24 +1,15 @@
-// Import necessary packages for Flutter UI, InAppWebView, and local checkout services.
+// lib/src/widgets/paypal_checkout_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'checkout_services.dart';
+
+import '../paypal_integration.dart';
 
 /// A Flutter widget that provides a PayPal checkout experience using an InAppWebView.
 class PaypalCheckoutView extends StatefulWidget {
-  /// Your PayPal client ID.
   final String clientId;
-
-  /// Your PayPal secret key.
   final String secretKey;
-
-  /// Set to true for sandbox mode (testing), false for live mode.
   final bool sandboxMode;
-
-  /// A list of transactions to be processed. Each transaction is a map.
-  /// Example:
-  ///
   final List<Map<String, dynamic>> transactions;
-
   final String returnUrl;
   final String cancelUrl;
 
@@ -42,7 +33,7 @@ class PaypalCheckoutView extends StatefulWidget {
     required this.onCancel,
     this.sandboxMode = false,
     this.loadingIndicator,
-    this.paypalService, // add this
+    this.paypalService,
   });
 
   @override
@@ -56,24 +47,36 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
   String? _accessToken;
   double _progress = 0;
 
+  bool _hasError = false;
+  String _errorMessage = '';
+  bool _paymentSuccess = false;
+  Map<String, dynamic>? _successData;
+
   @override
   void initState() {
     super.initState();
     _paypal =
         widget.paypalService ??
-        PaypalService(
-          clientId: widget.clientId,
-          secretKey: widget.secretKey,
-          sandboxMode: widget.sandboxMode,
-        );
+            PaypalService(
+              clientId: widget.clientId,
+              secretKey: widget.secretKey,
+              sandboxMode: widget.sandboxMode,
+            );
     _createPayment();
   }
 
   Future<void> _createPayment() async {
+    setState(() {
+      _hasError = false;
+      _paymentSuccess = false;
+      _approvalUrl = null;
+      _executeUrl = null;
+      _accessToken = null;
+    });
+
     try {
       final tokenResponse = await _paypal.getAccessToken();
-      debugPrint('⨝⨹⨹⨹⨝ PaypalService To String Map $tokenResponse');
-      final token = tokenResponse['token']; // ✅ Extract string here
+      final token = tokenResponse['token'];
 
       final payment = await _paypal.createPayment(
         accessToken: token,
@@ -82,7 +85,6 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
         returnUrl: widget.returnUrl,
         cancelUrl: widget.cancelUrl,
       );
-      debugPrint('⨝⨹⨹⨹⨝ PaypalService To String Map $payment');
 
       setState(() {
         _accessToken = token;
@@ -90,8 +92,11 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
         _executeUrl = payment['executeUrl'];
       });
     } catch (e) {
-      debugPrint('⨝⨹⨹⨹⨝ PaypalService To String Map $e');
       widget.onError(e);
+      setState(() {
+        _hasError = true;
+        _errorMessage = e.toString();
+      });
     }
   }
 
@@ -103,13 +108,91 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
         payerId: payerId,
       );
       widget.onSuccess(executed);
+      setState(() {
+        _paymentSuccess = true;
+        _successData = executed;
+      });
     } catch (e) {
       widget.onError(e);
+      setState(() {
+        _hasError = true;
+        _errorMessage = e.toString();
+      });
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    // Payment failed UI
+    if (_hasError) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Payment Failed')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline, size: 80, color: Colors.red),
+                const SizedBox(height: 16),
+                const Text(
+                  'Payment Failed!',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _errorMessage,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: _createPayment,
+                  child: const Text('Retry Payment'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Payment success UI
+    if (_paymentSuccess && _successData != null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Payment Success')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.check_circle_outline,
+                    size: 80, color: Colors.green),
+                const SizedBox(height: 16),
+                const Text(
+                  'Payment Successful!',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Transaction ID: ${_successData!['id'] ?? ''}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Done'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // Payment loading UI
     if (_approvalUrl == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('PayPal Payment')),
@@ -119,6 +202,7 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
       );
     }
 
+    // WebView checkout
     return Scaffold(
       appBar: AppBar(title: const Text('PayPal Checkout')),
       body: Stack(
@@ -138,6 +222,10 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
                   _executePayment(payerId);
                 } else {
                   widget.onError('Missing PayerID');
+                  setState(() {
+                    _hasError = true;
+                    _errorMessage = 'Missing PayerID';
+                  });
                 }
                 return NavigationActionPolicy.CANCEL;
               }
@@ -148,7 +236,8 @@ class _PaypalCheckoutViewState extends State<PaypalCheckoutView> {
               return NavigationActionPolicy.ALLOW;
             },
           ),
-          if (_progress < 1.0) LinearProgressIndicator(value: _progress),
+          if (_progress < 1.0)
+            LinearProgressIndicator(value: _progress),
         ],
       ),
     );

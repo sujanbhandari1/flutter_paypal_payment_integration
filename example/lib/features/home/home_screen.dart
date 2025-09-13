@@ -2,7 +2,7 @@ import 'package:example/features/home/provider/cart_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:paypal_integration/paypal_intregation.dart';
+import 'package:paypal_integration/paypal_integration.dart';
 import '../refund/provider/refund_state_provider.dart';
 import 'model/items.dart';
 
@@ -89,7 +89,6 @@ class HomePage extends ConsumerWidget {
                 ),
               ),
               const SizedBox(height: 12),
-
               ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
@@ -174,7 +173,35 @@ class HomePage extends ConsumerWidget {
                 style: TextStyle(color: Colors.grey),
               ),
             const SizedBox(height: 4),
-
+              PaypalPaymentButton(
+                enabled: cart.isNotEmpty,
+                clientId:
+                    "AfDlfuKlj48GElNvFRld1LZIPGAhIbyCm0MLHuhlznh0nl_eX5YiEmJHAJPVzemw0waxHIRH4sdg1It1",
+                secretKey:
+                    "EHkjluknVRt7RemM3BMP6q5WCB2xkOJ_LI4K7BBLCiGMyFOGDpR5zCVdTMXdJ9h5k2l2-zudQ8UjJnWp",
+                transactions: [
+                  {
+                    "amount": {
+                      "total": total.toStringAsFixed(2),
+                      "currency": "AUD",
+                      "details": {
+                        "subtotal": total.toStringAsFixed(2),
+                        "shipping": '0',
+                        "shipping_discount": 0,
+                      },
+                    },
+                    "description": "Payment for items sujan",
+                    "item_list": {
+                      "items": cartItems.map((e) => e.toPaypalItem()).toList(),
+                    },
+                  },
+                ],
+                returnUrl:
+                    "https://www.youtube.com/watch?v=kkzcCz1c2mE&list=RDkkzcCz1c2mE&start_radio=1",
+                cancelUrl:
+                    "https://www.youtube.com/watch?v=kkzcCz1c2mE&list=RDkkzcCz1c2mE&start_radio=1",
+              ),
+            const SizedBox(height: 4),
             // 🔗 Transaction Page Button
             TextButton(
               style: TextButton.styleFrom(

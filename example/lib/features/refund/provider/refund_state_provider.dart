@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:paypal_integration/paypal_intregation.dart';
+import 'package:paypal_integration/paypal_integration.dart';
 
 import '../states/refund_state.dart';
 

@@ -40,7 +40,7 @@ flutter pub get
 
 ```dart
 import 'package:flutter/material.dart';
-import 'package:paypal_integration/paypal_intregation.dart';
+import 'package:paypal_integration/paypal_integration.dart';
 
 void main() {
   runApp(const PaypalExampleApp());
