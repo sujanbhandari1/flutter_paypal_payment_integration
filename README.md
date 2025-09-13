@@ -6,12 +6,12 @@ Seamless **PayPal payment integration** for Flutter apps, supporting sandbox/liv
 
 ## Features
 
-- One-time Payments
-- Sandbox & Live Mode Switching
-- Customizable Checkout UI
-- Transaction History
-- Refunds
-- Fully testable and extendable
+* One-time Payments
+* Sandbox & Live Mode Switching
+* Customizable Checkout UI
+* Transaction History
+* Refunds
+* Fully testable and extendable
 
 ---
 
@@ -127,17 +127,6 @@ class HomePage extends StatelessWidget {
 
 ---
 
-## Example App
-
-- A full `/example` app is included in the repository demonstrating:
-    - Adding items to a cart
-    - Checkout flow
-    - Success, error, and cancellation handling
-    - Transaction listing
-- Screenshots can be added in the `README.md` later.
-
----
-
 ## Platform Setup
 
 ### Android
@@ -166,33 +155,57 @@ class HomePage extends StatelessWidget {
 
 ---
 
-## API Reference
+## API Documentation
 
-| Method | Description |
-|--------|-------------|
-| `PaypalCheckoutView` | Main checkout widget. Accepts clientId, secretKey, transactions, returnUrl, cancelUrl, callbacks. |
-| `onSuccess(Map data)` | Called on successful payment. |
-| `onError(dynamic error)` | Called on payment error. |
-| `onCancel()` | Called if user cancels the payment. |
+Detailed documentation for all public APIs in `lib/src/services/paypal_service.dart`.
+
+### `PaypalService`
+
+Handles all PayPal REST API interactions.
+
+**Constructor:**
+
+```dart
+PaypalService({
+  required String clientId,
+  required String secretKey,
+  required bool sandboxMode,
+  DioHttpService? httpService,
+})
+```
+
+**Methods:**
+
+| Method                                                                                                                        | Description                                                 |
+| ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `getAccessToken()`                                                                                                            | Fetches a PayPal OAuth access token.                        |
+| `createPayment({accessToken, intent, transactions, returnUrl, cancelUrl, noteToPayer, experienceProfileId})`                  | Creates a new payment, returns approval & execute URLs.     |
+| `executePayment({accessToken, executeUrl, payerId})`                                                                          | Executes an approved payment using PayerID from return URL. |
+| `captureAuthorization({accessToken, authorizationId, total, currency, isFinalCapture})`                                       | Captures an authorized payment.                             |
+| `refundCapture({accessToken, captureId, value, currencyCode, noteToPayer})`                                                   | Refunds a captured payment, supports partial refunds.       |
+| `voidAuthorization({accessToken, authorizationId})`                                                                           | Voids an authorization.                                     |
+| `getPaymentDetails({accessToken, paymentId})`                                                                                 | Retrieves details of a payment.                             |
+| `listTransactions({accessToken, startDate, endDate, transactionStatus, page, pageSize, fields, balanceAffectingRecordsOnly})` | Retrieves transaction history from PayPal reporting API.    |
+
+**Headers:**
+
+All methods automatically attach the `Authorization: Bearer <token>` header.
+
+**Errors:**
+
+* Throws `DioException` on network or API errors.
+* Error messages include status code and response body for debugging.
+
+---
+
+## Contribution Guidelines
+
+* Pull requests are welcome.
+* Fork the repository, make changes, and submit PR.
+* Ensure all tests pass before submitting.
 
 ---
 
 ## License
 
 MIT License – see `LICENSE` file.
-
----
-
-## Contribution Guidelines
-
-- Pull requests are welcome.
-- Fork the repository, make changes, and submit PR.
-- Ensure all tests pass before submitting.
-
----
-
-## Badges (Optional)
-
-- Pub.dev version badge
-- GitHub Actions CI badge
-- Codecov/coverage badge
